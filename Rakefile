@@ -199,7 +199,7 @@ task :new_album, :filename, :image_directory do |t, args|
       images.each do |image_path|
         image_url = "//#{image_host}:#{image_port}/#{title}/#{image_path}"
         page.puts "<li>"
-        page.puts "<a href=\"#{image_url}\"><img src=\"#{image_url}\"></img></a>"
+        page.puts "<a class=\"fancybox\" rel=\"group\" href=\"#{image_url}\"><img src=\"#{image_url}\"></img></a>"
         page.puts "</li>"
       end
 
