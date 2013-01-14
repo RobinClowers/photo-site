@@ -41,10 +41,10 @@ function addSidebarToggler() {
 function testFeatures() {
   var features = ['maskImage'];
   $(features).map(function(feature) {
-    if (Modernizr.testAllProps(feature)) {
-      $('html').addClass(feature);
+    if (Modernizr.testAllProps(this)) {
+      $('html').addClass(this);
     } else {
-      $('html').addClass('no-'+feature);
+      $('html').addClass('no-'+this);
     }
   });
   if ("placeholder" in document.createElement("input")) {
@@ -116,7 +116,7 @@ function renderDeliciousLinks(items) {
   $('#delicious').html(output);
 }
 
-$.domReady(function() {
+$(function() {
   testFeatures();
   wrapFlashVideos();
   flashVideoFallback();
