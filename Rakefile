@@ -23,8 +23,11 @@ stash_dir       = "_stash"    # directory to stash posts for speedy generation
 posts_dir       = "_posts"    # directory for blog files
 themes_dir      = ".themes"   # directory for blog files
 new_post_ext    = "markdown"  # default new post file extension when using the new_post task
+new_album_ext    = "markdown" # default new post file extension when using the new_post task
 new_page_ext    = "markdown"  # default new page file extension when using the new_page task
 server_port     = "4000"      # port for preview server eg. localhost:4000
+image_host      = "localhost" # host where images are served
+image_port      = "8080"      # port for image server
 
 
 desc "Initial setup for Octopress: copies the default theme into the path of Jekyll's generator. Rake install defaults to rake install[classic] to install a different theme run rake install[some_theme_name]"
@@ -144,6 +147,64 @@ task :new_page, :filename do |t, args|
       page.puts "sharing: true"
       page.puts "footer: true"
       page.puts "---"
+    end
+  else
+    puts "Syntax error: #{args.filename} contains unsupported characters"
+  end
+end
+
+# usage rake new_album['My New Album']
+desc "Create a new album in #{source_dir}/albums/(album_name)/index.html"
+task :new_album, :filename, :image_directory do |t, args|
+  raise "### You haven't set anything up yet. First run `rake install` to set up an Octopress theme." unless File.directory?(source_dir)
+  args.with_defaults(:filename => 'new-album')
+  args.with_defaults(:image_directory => "~/Pictures/#{args.filename}")
+  # p/Asia 2012
+  album_dir = [source_dir, 'albums']
+  if args.filename.downcase =~ /(^.+\/)?(.+)/
+    filename, dot, extension = $2.rpartition('.').reject(&:empty?)         # Get filename and extension
+    title = filename
+    album_dir.concat($1.downcase.sub(/^\//, '').split('/')) unless $1.nil?  # Add path to album_dir Array
+    if extension.nil?
+      album_dir << filename
+      filename = "index"
+    end
+    extension ||= new_album_ext
+    album_dir = album_dir.map! { |d| d = d.to_url }.join('/')                # Sanitize path
+    filename = filename.downcase.to_url
+
+    mkdir_p album_dir
+    file = "#{album_dir}/#{filename}.#{extension}"
+    if File.exist?(file)
+      abort("rake aborted!") if ask("#{file} already exists. Do you want to overwrite?", ['y', 'n']) == 'n'
+    end
+
+
+    images = Dir.entries(File.expand_path(args.image_directory))
+    images = images.reject { |f| f =~ /\A\./ }
+
+    puts "Creating new album: #{file}"
+    open(file, 'w') do |page|
+      page.puts "---"
+      page.puts "layout: page"
+      page.puts "title: \"#{title}\""
+      page.puts "date: #{Time.now.strftime('%Y-%m-%d %H:%M')}"
+      page.puts "comments: true"
+      page.puts "sharing: true"
+      page.puts "footer: true"
+      page.puts "---"
+      page.puts "<div>"
+      page.puts "<ul>"
+
+      images.each do |image_path|
+        image_url = "//#{image_host}:#{image_port}/#{title}/#{image_path}"
+        page.puts "<li>"
+        page.puts "<a href=\"#{image_url}\"><img src=\"#{image_url}\"></img></a>"
+        page.puts "</li>"
+      end
+
+      page.puts "</ul>"
+      page.puts "</div>"
     end
   else
     puts "Syntax error: #{args.filename} contains unsupported characters"
