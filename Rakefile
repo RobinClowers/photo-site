@@ -1,6 +1,7 @@
 require "rubygems"
 require "bundler/setup"
 require "stringex"
+require "RMagick"
 
 ## -- Rsync Deploy config -- ##
 # Be sure your public key is listed in your server's ~/.ssh/authorized_keys file
@@ -153,6 +154,27 @@ task :new_page, :filename do |t, args|
   end
 end
 
+# usage rake process_images['~/Pictures/Hawaii']
+desc "Create a set of thumbnails for the images in a given folder"
+task :process_images, :image_directory do |t, args|
+  args.with_defaults(:image_directory => '-album')
+  orig_dir = File.expand_path(args.image_directory)
+  raise "### You must specify a directory containing images to process" unless File.directory?(orig_dir)
+  images = get_images(orig_dir)
+  images = images.reject { |f| f =~ /\A\./ }
+  thumbs_dir = File.join(orig_dir, 'thumbs')
+  if Dir.exists?(thumbs_dir)
+    abort("rake aborted!") if ask("The 'thumbs' directory already exists. Do you want to overwrite?", ['y', 'n']) == 'n'
+  else
+    Dir.mkdir_p(thumbs_dir)
+  end
+  images.each do |filename|
+    image = Magick::ImageList.new(File.join(orig_dir, filename))
+    thumb = image.resize_to_fill(75, 75)
+    thumb.write(File.join(thumbs_dir, filename))
+  end
+end
+
 # usage rake new_album['My New Album']
 desc "Create a new album in #{source_dir}/albums/(album_name)/index.html"
 task :new_album, :filename, :image_directory do |t, args|
@@ -180,7 +202,7 @@ task :new_album, :filename, :image_directory do |t, args|
     end
 
 
-    images = Dir.entries(File.expand_path(args.image_directory))
+    images = get_images(File.expand_path(args.image_directory))
     images = images.reject { |f| f =~ /\A\./ }
 
     puts "Creating new album: #{file}"
@@ -194,12 +216,14 @@ task :new_album, :filename, :image_directory do |t, args|
       page.puts "footer: true"
       page.puts "---"
       page.puts "<div>"
-      page.puts "<ul>"
+      page.puts "<ul class=\"album-thumbs\">"
 
       images.each do |image_path|
-        image_url = "//#{image_host}:#{image_port}/#{title}/#{image_path}"
+        base_url = "//#{image_host}:#{image_port}/#{title}"
+        image_url = "#{base_url}/#{image_path}"
+        thumb_url = "#{base_url}/thumbs/#{image_path}"
         page.puts "<li>"
-        page.puts "<a class=\"fancybox\" rel=\"group\" href=\"#{image_url}\"><img src=\"#{image_url}\"></img></a>"
+        page.puts "<a class=\"fancybox\" rel=\"group\" href=\"#{image_url}\"><img src=\"#{thumb_url}\"></img></a>"
         page.puts "</li>"
       end
 
@@ -437,4 +461,8 @@ desc "list tasks"
 task :list do
   puts "Tasks: #{(Rake::Task.tasks - [Rake::Task[:list]]).join(', ')}"
   puts "(type rake -T for more detail)\n\n"
+end
+
+def get_images(directory)
+  Dir.entries(directory).select { |f| f =~ /\.jpg|png\Z/i }
 end
