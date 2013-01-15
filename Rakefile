@@ -163,15 +163,23 @@ task :process_images, :image_directory do |t, args|
   images = get_images(orig_dir)
   images = images.reject { |f| f =~ /\A\./ }
   thumbs_dir = File.join(orig_dir, 'thumbs')
+  web_dir = File.join(orig_dir, 'web')
   if Dir.exists?(thumbs_dir)
     abort("rake aborted!") if ask("The 'thumbs' directory already exists. Do you want to overwrite?", ['y', 'n']) == 'n'
   else
-    Dir.mkdir_p(thumbs_dir)
+    Dir.mkdir(thumbs_dir)
+  end
+  if Dir.exists?(web_dir)
+    abort("rake aborted!") if ask("The 'web' directory already exists. Do you want to overwrite?", ['y', 'n']) == 'n'
+  else
+    Dir.mkdir(web_dir)
   end
   images.each do |filename|
     image = Magick::ImageList.new(File.join(orig_dir, filename))
     thumb = image.resize_to_fill(75, 75)
     thumb.write(File.join(thumbs_dir, filename))
+    web = image.resize_to_fit(1024, 1024)
+    web.write(File.join(web_dir, filename))
   end
 end
 
