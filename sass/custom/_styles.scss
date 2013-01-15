@@ -7,3 +7,11 @@ ul.album-thumbs {
     display: inline-block;
   }
 }
+
+#fancybox-loading {
+  border-radius: 8px;
+  border: none;
+  div {
+    border: none;
+  }
+}
