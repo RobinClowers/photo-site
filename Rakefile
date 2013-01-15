@@ -208,7 +208,7 @@ task :new_album, :filename, :image_directory do |t, args|
     puts "Creating new album: #{file}"
     open(file, 'w') do |page|
       page.puts "---"
-      page.puts "layout: page"
+      page.puts "layout: album"
       page.puts "title: \"#{title}\""
       page.puts "date: #{Time.now.strftime('%Y-%m-%d %H:%M')}"
       page.puts "comments: true"
