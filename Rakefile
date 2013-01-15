@@ -214,6 +214,7 @@ task :new_album, :filename, :image_directory do |t, args|
       page.puts "comments: true"
       page.puts "sharing: true"
       page.puts "footer: true"
+      page.puts "sidebar: false"
       page.puts "---"
       page.puts "<div>"
       page.puts "<ul class=\"album-thumbs\">"
