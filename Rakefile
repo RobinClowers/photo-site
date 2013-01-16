@@ -157,7 +157,7 @@ end
 # usage rake process_images['~/Pictures/Hawaii']
 desc "Create a set of thumbnails for the images in a given folder"
 task :process_images, :image_directory do |t, args|
-  args.with_defaults(:image_directory => '-album')
+  args.with_defaults(:image_directory => '')
   orig_dir = File.expand_path(args.image_directory)
   raise "### You must specify a directory containing images to process" unless File.directory?(orig_dir)
   images = get_images(orig_dir)
