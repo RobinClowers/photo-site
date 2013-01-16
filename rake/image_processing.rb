@@ -9,7 +9,7 @@ class ImageProcessor
     @web_dir = File.join(directory, 'web')
     @thumbs_dir = File.join(directory, 'thumbs')
     exisiting_web_images = get_images(File.join(directory, 'web'))
-    exisiting_thumbnail_images = get_images(File.join(directory, 'web'))
+    exisiting_thumbnail_images = get_images(File.join(directory, 'thumbs'))
     processed_images = exisiting_web_images & exisiting_thumbnail_images
     @images_to_process = @image_names - processed_images
   end
@@ -72,7 +72,8 @@ class ImageProcessor
     Dir.mkdir(name) unless Dir.exists?(name)
   end
 
-  def get_images(directory)
-    Dir.entries(directory).select { |f| f =~ /\.jpg|png\Z/i }
-  end
+end
+
+def get_images(directory)
+  Dir.entries(directory).select { |f| f =~ /\.jpg|png\Z/i }
 end

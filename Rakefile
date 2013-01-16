@@ -176,7 +176,6 @@ task :new_album, :filename, :image_directory do |t, args|
   raise "### You haven't set anything up yet. First run `rake install` to set up an Octopress theme." unless File.directory?(source_dir)
   args.with_defaults(:filename => 'new-album')
   args.with_defaults(:image_directory => "~/Pictures/#{args.filename}")
-  # p/Asia 2012
   album_dir = [source_dir, 'albums']
   if args.filename.downcase =~ /(^.+\/)?(.+)/
     filename, dot, extension = $2.rpartition('.').reject(&:empty?)         # Get filename and extension
