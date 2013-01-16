@@ -8,6 +8,10 @@ class ImageProcessor
     @image_names = get_images(directory)
     @web_dir = File.join(directory, 'web')
     @thumbs_dir = File.join(directory, 'thumbs')
+    exisiting_web_images = get_images(File.join(directory, 'web'))
+    exisiting_thumbnail_images = get_images(File.join(directory, 'web'))
+    processed_images = exisiting_web_images & exisiting_thumbnail_images
+    @images_to_process = @image_names - processed_images
   end
 
   def process_images
@@ -58,7 +62,7 @@ class ImageProcessor
   end
 
   def each_image
-    @image_names.each do |filename|
+    @images_to_process.each do |filename|
       image = Magick::ImageList.new(File.join(@directory, filename))
       yield image, filename
     end
