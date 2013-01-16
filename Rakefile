@@ -1,7 +1,7 @@
 require "rubygems"
 require "bundler/setup"
 require "stringex"
-require "RMagick"
+require "./rake/image_processing"
 
 ## -- Rsync Deploy config -- ##
 # Be sure your public key is listed in your server's ~/.ssh/authorized_keys file
@@ -158,29 +158,16 @@ end
 desc "Create a set of thumbnails for the images in a given folder"
 task :process_images, :image_directory do |t, args|
   args.with_defaults(:image_directory => '')
-  orig_dir = File.expand_path(args.image_directory)
-  raise "### You must specify a directory containing images to process" unless File.directory?(orig_dir)
-  images = get_images(orig_dir)
-  images = images.reject { |f| f =~ /\A\./ }
-  thumbs_dir = File.join(orig_dir, 'thumbs')
-  web_dir = File.join(orig_dir, 'web')
-  if Dir.exists?(thumbs_dir)
-    abort("rake aborted!") if ask("The 'thumbs' directory already exists. Do you want to overwrite?", ['y', 'n']) == 'n'
-  else
-    Dir.mkdir(thumbs_dir)
-  end
-  if Dir.exists?(web_dir)
-    abort("rake aborted!") if ask("The 'web' directory already exists. Do you want to overwrite?", ['y', 'n']) == 'n'
-  else
-    Dir.mkdir(web_dir)
-  end
-  images.each do |filename|
-    image = Magick::ImageList.new(File.join(orig_dir, filename))
-    thumb = image.resize_to_fill(75, 75)
-    thumb.write(File.join(thumbs_dir, filename))
-    web = image.resize_to_fit(1024, 1024)
-    web.write(File.join(web_dir, filename))
-  end
+  processor = ImageProcessor.new(args.image_directory)
+  processor.process_images
+end
+
+# usage rake auto_orient['~/Pictures/Hawaii']
+desc "orients images based on their exif rotation data"
+task :auto_orient, :image_directory do |t, args|
+  args.with_defaults(:image_directory => '')
+  processor = ImageProcessor.new(args.image_directory)
+  processor.auto_orient_images!
 end
 
 # usage rake new_album['My New Album']
@@ -470,8 +457,4 @@ desc "list tasks"
 task :list do
   puts "Tasks: #{(Rake::Task.tasks - [Rake::Task[:list]]).join(', ')}"
   puts "(type rake -T for more detail)\n\n"
-end
-
-def get_images(directory)
-  Dir.entries(directory).select { |f| f =~ /\.jpg|png\Z/i }
 end
