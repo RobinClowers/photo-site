@@ -69,11 +69,7 @@ class ImageProcessor
   end
 
   def guard_dir(name)
-    if Dir.exists?(name)
-      abort("rake aborted!") if ask("The '#{name}' directory already exists. Do you want to overwrite?", ['y', 'n']) == 'n'
-    else
-      Dir.mkdir(name)
-    end
+    Dir.mkdir(name) unless Dir.exists?(name)
   end
 
   def get_images(directory)
