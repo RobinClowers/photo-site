@@ -27,9 +27,12 @@ new_post_ext    = "markdown"  # default new post file extension when using the n
 new_album_ext    = "markdown" # default new post file extension when using the new_post task
 new_page_ext    = "markdown"  # default new page file extension when using the new_page task
 server_port     = "4000"      # port for preview server eg. localhost:4000
-image_host      = "localhost" # host where images are served
-image_port      = "8080"      # port for image server
 
+if ENV['RAKE_ENV'] == 'production'
+  require './config/production'
+else
+  require './config/development'
+end
 
 desc "Initial setup for Octopress: copies the default theme into the path of Jekyll's generator. Rake install defaults to rake install[classic] to install a different theme run rake install[some_theme_name]"
 task :install, :theme do |t, args|
@@ -214,7 +217,7 @@ task :new_album, :filename, :image_directory do |t, args|
       page.puts "<ul class=\"album-thumbs\">"
 
       images.each do |image_path|
-        base_url = "//#{image_host}:#{image_port}/#{title}"
+        base_url = "//#{Configuration.image_host}:#{Configuration.image_port}/#{title}"
         image_url = "#{base_url}/#{image_path}"
         thumb_url = "#{base_url}/thumbs/#{image_path}"
         page.puts "<li>"
