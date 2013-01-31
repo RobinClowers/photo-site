@@ -8,6 +8,8 @@ class ImageProcessor
     @image_names = get_images(directory)
     @web_dir = File.join(directory, 'web')
     @thumbs_dir = File.join(directory, 'thumbs')
+    guard_dir @web_dir
+    guard_dir @thumbs_dir
     exisiting_web_images = get_images(File.join(directory, 'web'))
     exisiting_thumbnail_images = get_images(File.join(directory, 'thumbs'))
     processed_images = exisiting_web_images & exisiting_thumbnail_images
@@ -15,8 +17,6 @@ class ImageProcessor
   end
 
   def process_images
-    guard_dir @web_dir
-    guard_dir @thumbs_dir
     each_image do |image, basename|
       auto_orient_image!(image)
       create_thumbnail_image(image, basename)
