@@ -18,8 +18,13 @@ ul.album-thumbs {
 
 .album-list {
   li {
+    width: 100px;
     text-align: center;
+    vertical-align: top;
     display: inline-block;
     padding-left: 55px;
+    a {
+      text-decoration: none;
+    }
   }
 }
