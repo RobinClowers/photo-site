@@ -7,7 +7,10 @@ layout: default
   {% for page in site.pages %}
     {% if page.layout == 'album' %}
       <li>
-        <a href="{{page.url}}">{{page.title | titlecase}}<a>
+          <img src="http://{{site.photo_host}}:{{site.photo_port}}/{{page.title}}/thumbs/{{page.cover}}"></img>
+        <a href="{{page.url}}">
+          <p>{{page.title | titlecase}}</p>
+        <a>
       </li>
     {% endif %}
   {% endfor %}

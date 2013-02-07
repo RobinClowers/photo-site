@@ -6,6 +6,7 @@ comments: true
 sharing: true
 footer: true
 sidebar: false
+cover: P1120661.JPG
 ---
 <div>
 <ul class="album-thumbs">
