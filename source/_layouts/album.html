@@ -2,7 +2,6 @@
 layout: default
 ---
 
-<script src='/javascripts/test.js'></script>
 <div>
 <article role="article">
   {% if page.title %}
@@ -11,6 +10,7 @@ layout: default
     {% if page.date %}<p class="meta">{% include post/date.html %}{{ time }}</p>{% endif %}
   </header>
   {% endif %}
+  <div class="login-view"></div>
   {{ content }}
   {% unless page.footer == false %}
     <footer>
@@ -42,6 +42,7 @@ layout: default
 </aside>
 {% endunless %}
 
+<div class="comment-container"></div>
 
 <script type="text/javascript" src="/javascripts/jquery.mousewheel-3.0.6.pack.js"></script>
 
@@ -61,3 +62,6 @@ layout: default
 		$(".fancybox").fancybox();
 	});
 </script>
+
+<script src='/javascripts/login_controller.js'></script>
+<script src='/javascripts/comments_controller.js'></script>
