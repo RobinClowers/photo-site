@@ -1,6 +1,8 @@
 require "rubygems"
 require "bundler/setup"
 require "stringex"
+require "pathname"
+require "listen"
 require "./rake/image_processing"
 
 ## -- Rsync Deploy config -- ##
@@ -69,13 +71,36 @@ task :watch do
   system "compass compile --css-dir #{source_dir}/stylesheets" unless File.exist?("#{source_dir}/stylesheets/screen.css")
   jekyllPid = Process.spawn({"OCTOPRESS_ENV"=>"preview"}, "jekyll --auto")
   compassPid = Process.spawn("compass watch")
-
   trap("INT") {
     [jekyllPid, compassPid].each { |pid| Process.kill(9, pid) rescue Errno::ESRCH }
     exit 0
   }
 
   [jekyllPid, compassPid].each { |pid| Process.wait(pid) }
+end
+
+desc 'copy all changes in the public directory to ../photo-site'
+task :mirror do
+  public_path = Pathname.new(public_dir)
+  Listen.to(public_dir, relative_paths: true) do |modified, added, removed|
+    (modified + added).each do |filepath|
+      source = public_path + filepath
+      new_path = get_mirror_location(filepath)
+      puts "cp #{source} to #{new_path}"
+      FileUtils.cp(source, new_path)
+    end
+    removed.each do |filepath|
+      puts "rm #{filepath}"
+      FileUtils.rm(get_mirror_location(filepath))
+    end
+  end
+end
+
+def get_mirror_location(filepath)
+  dir = Pathname.pwd
+  mirror_root = dir + '../photo-site/public'
+  path = Pathname.new(filepath)
+  mirror_root + path
 end
 
 desc "preview the site in a web browser"
