@@ -17,6 +17,8 @@ group :development do
   gem 'coffee-script', '~> 2.2.0'
   gem 'listen'
   gem 'pry'
+  gem 'pry-debugger'
+  gem 'pry-stack_explorer'
 end
 
 gem 'sinatra', '~> 1.3.2'
