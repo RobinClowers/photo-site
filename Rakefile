@@ -4,6 +4,7 @@ require "stringex"
 require "pathname"
 require "listen"
 require "./rake/image_processing"
+require "./rake/image_sets_processor"
 
 ## -- Rsync Deploy config -- ##
 # Be sure your public key is listed in your server's ~/.ssh/authorized_keys file
@@ -18,17 +19,18 @@ deploy_branch  = "gh-pages"
 
 ## -- Misc Configs -- ##
 
-public_dir      = "public"    # compiled site directory
-source_dir      = "source"    # source file directory
-blog_index_dir  = 'source'    # directory for your blog's index page (if you put your index in source/blog/index.html, set this to 'source/blog')
-deploy_dir      = "_deploy"   # deploy directory (for Github pages deployment)
-stash_dir       = "_stash"    # directory to stash posts for speedy generation
-posts_dir       = "_posts"    # directory for blog files
-themes_dir      = ".themes"   # directory for blog files
-new_post_ext    = "markdown"  # default new post file extension when using the new_post task
-new_album_ext    = "markdown" # default new post file extension when using the new_post task
-new_page_ext    = "markdown"  # default new page file extension when using the new_page task
-server_port     = "4000"      # port for preview server eg. localhost:4000
+public_dir      = "public"            # compiled site directory
+source_dir      = "source"            # source file directory
+blog_index_dir  = 'source'            # directory for your blog's index page (if you put your index in source/blog/index.html, set this to 'source/blog')
+deploy_dir      = "_deploy"           # deploy directory (for Github pages deployment)
+stash_dir       = "_stash"            # directory to stash posts for speedy generation
+posts_dir       = "_posts"            # directory for blog files
+themes_dir      = ".themes"           # directory for blog files
+new_post_ext    = "markdown"          # default new post file extension when using the new_post task
+new_album_ext   = "markdown"          # default new post file extension when using the new_post task
+new_page_ext    = "markdown"          # default new page file extension when using the new_page task
+server_port     = "4000"              # port for preview server eg. localhost:4000
+ignore_file     = ".photosite_ignore" #filename for directories ignored by process_image_sets
 
 if ENV['RAKE_ENV'] == 'production'
   require './config/production'
@@ -194,15 +196,8 @@ end
 desc "Create a set of thumbnails for each directory in the given directory"
 task :process_image_sets, :image_directory do |t, args|
   args.with_defaults(:image_directory => '')
-  directory = File.expand_path(args.image_directory)
-  Dir.foreach directory do |entry|
-    full_path = File.join(directory, entry)
-    if entry != '.' && entry != '..' && File.directory?(full_path)
-      puts "processing #{entry}"
-      processor = ImageProcessor.new(full_path)
-      processor.process_images
-    end
-  end
+  processor = ImageSetsProcessor.new(args.image_directory, ignore_file)
+  processor.process
   puts "finished"
 end
 
