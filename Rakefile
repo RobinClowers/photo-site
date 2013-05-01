@@ -190,6 +190,22 @@ task :process_images, :image_directory do |t, args|
   processor.process_images
 end
 
+# usage rake process_image_sets['~/Pictures']
+desc "Create a set of thumbnails for each directory in the given directory"
+task :process_image_sets, :image_directory do |t, args|
+  args.with_defaults(:image_directory => '')
+  directory = File.expand_path(args.image_directory)
+  Dir.foreach directory do |entry|
+    full_path = File.join(directory, entry)
+    if entry != '.' && entry != '..' && File.directory?(full_path)
+      puts "processing #{entry}"
+      processor = ImageProcessor.new(full_path)
+      processor.process_images
+    end
+  end
+  puts "finished"
+end
+
 # usage rake auto_orient['~/Pictures/Hawaii']
 desc "orients images based on their exif rotation data"
 task :auto_orient, :image_directory do |t, args|
