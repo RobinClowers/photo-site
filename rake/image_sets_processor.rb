@@ -10,6 +10,7 @@ class ImageSetsProcessor
 
   def process
     Dir.foreach set_path do |entry|
+      ObjectSpace.garbage_collect # seems bad, hopefully there is a better way
       @full_path = File.join(set_path, entry)
       if valid_album?(entry)
         puts "processing #{entry}"
